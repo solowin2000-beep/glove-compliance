@@ -1,0 +1,146 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Faq from '../components/Faq.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, PAGES } from '../site.config.mjs';
+
+const meta = PAGES.find((p) => p.path === '/request-quote/');
+
+const template = `CUT-RESISTANT GLOVE ENQUIRY
+
+Company        :
+Contact        :
+Market         : (United States / European Union / both)
+Application    : (e.g. sheet metal handling, glass handling, meat processing)
+Required level : EN 388 cut ...   |   ANSI/ISEA 105 ...
+Quantity       : (pairs per order, and per year if known)
+Delivery port  :
+Target price   : (per pair, if you have one)
+
+OTHER HAZARDS IN THE TASK
+  Chemicals    : yes / no
+  Heat or cold : yes / no
+  Vibration    : yes / no
+  Static / ATEX: yes / no
+
+Any certification you must be able to show:
+`;
+
+const faq = [
+  {
+    q: 'What do you need from me to quote?',
+    a: 'Five things: the application, the cut level you must meet (and in which scale), the quantity, the delivery port, and any other hazard in the task such as chemicals or heat. The enquiry template above covers all of it.',
+  },
+  {
+    q: 'What is your minimum order quantity?',
+    a: 'Tell us the quantity you actually need and we will quote against it, including where the price steps down. Glove programmes are usually priced in tiers, so it helps to give both the first order and the annual volume.',
+  },
+  {
+    q: 'Can you supply test reports and certification?',
+    a: 'Ask for them explicitly and in writing. For EN 388 you want the test report to EN 388:2016+A1:2018 and the EU type-examination certificate; for the US market you want the ASTM F2992-15 results behind the A-level printed on the packaging. Anything you cannot attach to a tender, you do not have.',
+  },
+  {
+    q: 'Can gloves be branded for our own label?',
+    a: 'Say so in the enquiry. Private label affects artwork, packaging, minimum quantities and lead time, and it is much cheaper to raise at the quotation stage than after the specification is fixed.',
+  },
+  {
+    q: 'How quickly will I get a reply?',
+    a: 'Enquiries sent to the address above are read directly. Include the application and quantity and you will get a specification-based reply rather than a catalogue.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: 'Request a quote',
+    url: new URL(meta.path, SITE.url).href,
+    description: meta.description,
+  },
+];
+
+const mailtoHref = 'mailto:' + SITE.email +
+  '?subject=' + encodeURIComponent('Cut-resistant glove enquiry') +
+  '&body=' + encodeURIComponent(template);
+
+import QuickAnswer from '../components/QuickAnswer.astro';
+
+---
+<Base title={meta.title} description={meta.description} path={meta.path} jsonLd={jsonLd}>
+  <Breadcrumbs items={[{ name: 'Request a quote', path: meta.path }]} />
+
+  <h1>Request a cut-resistant glove quote</h1>
+  <p class="lede">
+    Send the five things below and you get a specification-based reply — matching models, the certification
+    behind them, price breaks by quantity and sample lead time — instead of a catalogue.
+  </p>
+
+  <QuickAnswer
+    updated={SITE.updated}
+    points={[
+      'A quote request works better as a specification than a catalogue question: send the application (what is handled, and how sharp it is) with the target cut level and quantity.',
+      'Name the standard you buy against &mdash; EN 388:2016+A1:2018 or ANSI/ISEA 105-2016 &mdash; and ask for the test report as an attachment.',
+      'You get back matching models, the certification behind them, price breaks by quantity and sample lead time.',
+    ]}
+  />
+
+
+  <div class="card">
+    <h2 style="margin-top:0">What to include</h2>
+    <ul class="notes">
+      <li><strong>Application</strong> — what is being handled, and how sharp it is.</li>
+      <li><strong>Required level</strong> — and in which scale: EN 388 cut letter, or ANSI/ISEA 105 A-level.</li>
+      <li><strong>Quantity</strong> — first order and, if you know it, annual volume. Price breaks by tier.</li>
+      <li><strong>Delivery port</strong> — so freight and terms can be quoted in the same currency as the goods.</li>
+      <li><strong>Other hazards</strong> — chemicals, heat, cold, vibration or static, each of which is a separate standard.</li>
+    </ul>
+    <p class="small">
+      Not sure about the level? Run the <a href="/cut-level-checker/">cut level checker</a> first — it
+      produces the enquiry sheet for you.
+    </p>
+  </div>
+
+  <div class="cta">
+    <h2>Send it by email</h2>
+    <p>
+      Opens your mail app with the enquiry template already filled in, addressed to
+      <a href={'mailto:' + SITE.email}>{SITE.email}</a>. Nothing is submitted to this website.
+    </p>
+    <a class="btn-link" href={mailtoHref}>
+      <Icon name="mail" /> Email the enquiry
+    </a>
+  </div>
+
+  <h2>Enquiry template</h2>
+  <p>Or copy this into any email or messaging app you already use.</p>
+  <textarea id="tpl" readonly aria-label="Enquiry template">{template}</textarea>
+  <button id="copy" type="button" class="secondary" style="margin-top:14px">Copy template</button>
+
+  <h2>What happens next</h2>
+  <ol>
+    <li>We read the application and the level you must meet, and confirm the specification.</li>
+    <li>You get matching options with the test reports and certification attached.</li>
+    <li>Samples and price tiers by quantity follow, against your delivery port.</li>
+  </ol>
+
+  <Faq items={faq} />
+</Base>
+
+<script>
+  var btn = document.getElementById('copy');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var ta = document.getElementById('tpl');
+      ta.removeAttribute('readonly');
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.setAttribute('readonly', 'readonly');
+      if (!ok && navigator.clipboard) { navigator.clipboard.writeText(ta.value); ok = true; }
+      btn.textContent = ok ? 'Copied to clipboard' : 'Select the text above and copy it manually';
+      setTimeout(function () { btn.textContent = 'Copy template'; }, 2200);
+    });
+  }
+</script>
+</Base>

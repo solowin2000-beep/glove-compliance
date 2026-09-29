@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="Page not found"
+  description="The page you were looking for does not exist."
+  path="/404/"
+  noindex={true}
+>
+  <h1>That page does not exist</h1>
+  <p class="lede">The link may be out of date. These pages are the useful ones:</p>
+  <div class="tools">
+    <a class="tool" href="/cut-level-checker/"><h3>Cut level checker</h3><p>Level, specification and enquiry sheet for your application.</p></a>
+    <a class="tool" href="/cut-level-chart/"><h3>EN 388 vs ANSI chart</h3><p>Cut letters converted to A-levels, and how to read 4X42D.</p></a>
+    <a class="tool" href="/gloves-by-industry/"><h3>Gloves by industry</h3><p>Twelve applications with liners, coatings and pitfalls.</p></a>
+  </div>
+</Base>

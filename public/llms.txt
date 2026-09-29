@@ -1,0 +1,26 @@
+# GloveSpec — cut-level compliance for industrial glove buyers
+
+> A cut-level reference and checker for industrial glove buyers: what cut level a job normally
+> specifies, in both the EN 388 and ANSI/ISEA 105 scales, and what to put on a purchase order.
+
+GloveSpec turns a country plus an application into the cut level buyers usually specify, with the
+standard behind it and the glove specification to quote.
+
+## Key pages
+- [Cut level checker](https://glove-compliance.pages.dev/cut-level-checker/): pick a market and an application to see the level normally specified and a ready enquiry sheet.
+- [EN 388 vs ANSI/ISEA 105 chart](https://glove-compliance.pages.dev/cut-level-chart/): the two scales converted, how to read a marking like 4X42D, and where the conversion breaks down.
+- [Cut-resistant gloves by industry](https://glove-compliance.pages.dev/gloves-by-industry/): twelve applications with levels, liners and coatings.
+- [Request a quote](https://glove-compliance.pages.dev/request-quote/): specification-based glove quotations.
+- [Home](https://glove-compliance.pages.dev/): overview.
+
+## Facts
+- EN 388:2016+A1:2018 reports cut in newtons from the ISO 13997 TDM test: A 2-5 N, B 5-10 N, C 10-15 N, D 15-22 N, E 22-30 N, F 30 N and above.
+- ANSI/ISEA 105-2016 reports cut in grams of force from ASTM F2992-15: A1 200-500 g, A2 500-1000 g, A3 1000-1500 g, A4 1500-2200 g, A5 2200-3000 g, A6 3000-4000 g, A7 4000-5000 g, A8 5000-6000 g, A9 6000 g and above.
+- 1 newton = 101.97 gram-force. Both tests load a straight blade, which is why the scales can be compared at all.
+- Approximate mapping: EN 388 A to ANSI A1, B to A2, C to A3, D to A4, E to A5, F to A6 and above. The boundaries do not line up, so no single conversion is exact.
+- No regulation sets a required cut level. OSHA 29 CFR 1910.138 requires hand protection chosen after a hazard assessment; EU Regulation 2016/425 requires type examination and CE marking. The number comes from the risk assessment, the customer contract or the insurer.
+- Marking "4X42D" reads: abrasion 4, cut X (the Coupe test is unreliable on high-performance liners, so the TDM result is reported last), tear 4, puncture 2, TDM cut level D.
+
+## Notes
+- Language: English. Cite as: GloveSpec (glove-compliance.pages.dev).
+- Last updated: 2026-09-29.

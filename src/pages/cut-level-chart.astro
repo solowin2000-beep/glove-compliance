@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Faq from '../components/Faq.astro';
+import { SITE, PAGES } from '../site.config.mjs';
+import { CONVERSION_TABLE, EN388_POSITIONS, OTHER_STANDARDS, N_TO_GF } from '../data/glove-model.mjs';
+
+const meta = PAGES.find((p) => p.path === '/cut-level-chart/');
+
+const faq = [
+  {
+    q: 'Is there an exact EN 388 to ANSI conversion?',
+    a: 'No. Both standards measure cut resistance with a straight blade under increasing load (TDM), but ISO 13997 and ASTM F2992-15 differ in edge geometry, load application and pass criteria. EN 388 results are reported in newtons and ANSI/ISEA 105 in grams of force, so the scales can be compared, but the boundary levels do not line up. Any table that gives a single one-to-one mapping is oversimplifying.',
+  },
+  {
+    q: 'Why does my glove show an X instead of a blade cut number?',
+    a: 'The second EN 388 position is the Coupe test, which uses a rotating circular blade. High-performance liners — glass fibre, HPPE, steel blends — blunt the blade during the test, which makes the result unreliable and, historically, dangerously optimistic. From EN 388:2016 the marking shows X in that position and reports cut performance under the TDM test instead. An X is not a failure.',
+  },
+  {
+    q: 'Which number should I put in a purchase order?',
+    a: 'The one your buyer reads. US buyers and their insurers work in ANSI/ISEA 105 A-levels; European buyers work in the EN 388 cut letter. State the standard version as well (EN 388:2016+A1:2018, ANSI/ISEA 105-2016), require the test report as an attachment, and add the other hazards of the task as separate standards.',
+  },
+  {
+    q: 'Does a higher cut level reduce other protection?',
+    a: 'It can. Higher cut levels usually need denser, harder liners, which reduces dexterity and grip and can reduce abrasion and tear performance. A glove is a balance, and the cut letter tells you nothing about chemicals, heat, vibration or static.',
+  },
+  {
+    q: 'Where does ANSI A9 end?',
+    a: 'ANSI/ISEA 105-2016 runs from A1 at 200 grams of force to A9 at 6,000 grams and above. A9 is used in specialist work such as high-volume blade handling and some waste and metal recycling tasks, and it is rarely needed in general industry.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'EN 388 vs ANSI/ISEA 105 cut levels: conversion and how to read the marking',
+    description: meta.description,
+    inLanguage: 'en',
+    mainEntityOfPage: new URL(meta.path, SITE.url).href,
+    author: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+];
+
+import QuickAnswer from '../components/QuickAnswer.astro';
+
+---
+<Base title={meta.title} description={meta.description} path={meta.path} jsonLd={jsonLd}>
+  <Breadcrumbs items={[{ name: 'EN 388 vs ANSI chart', path: meta.path }]} />
+
+  <h1>EN 388 vs ANSI/ISEA 105 cut levels</h1>
+  <p class="lede">
+    Two standards, two scales, and a lot of charts that quietly pretend they are the same thing. Here is
+    how the levels line up, how to read a glove marking, and where the conversion breaks down.
+  </p>
+
+  <QuickAnswer
+    updated={SITE.updated}
+    points={[
+      'EN 388:2016+A1:2018 cut letters in newtons (ISO 13997 TDM): <b>A 2&ndash;5, B 5&ndash;10, C 10&ndash;15, D 15&ndash;22, E 22&ndash;30, F 30 and above</b>.',
+      'ANSI/ISEA 105-2016 cut levels in grams of force (ASTM F2992-15): <b>A1 200&ndash;500, A2 500&ndash;1000, A3 1000&ndash;1500, A4 1500&ndash;2200, A5 2200&ndash;3000, A6 3000&ndash;4000, A7 4000&ndash;5000, A8 5000&ndash;6000, A9 6000 and above</b>.',
+      '1 newton = <b>101.97 gram-force</b>, and the approximate mapping is A&rarr;A1, B&rarr;A2, C&rarr;A3, D&rarr;A4, E&rarr;A5, F&rarr;A6 and above.',
+      'A marking like <b>4X42D</b> reads abrasion 4, cut X (the Coupe test is unreliable on that liner), tear 4, puncture 2, TDM cut level D.',
+    ]}
+  />
+
+
+  <h2>How to read a marking like 4X42D</h2>
+  <p>
+    EN 388:2016+A1:2018 reports six results in a fixed order. The glove in the example — <strong>4X42D</strong> —
+    reads across like this:
+  </p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Test</th><th>Scale</th><th>4X42D</th><th>What the test does</th></tr>
+    </thead>
+    <tbody>
+      {EN388_POSITIONS.map((p, i) => (
+        <tr>
+          <td>{p.pos}</td>
+          <td>{p.name}</td>
+          <td class="num">{p.values}</td>
+          <td class="num">{['4', 'X', '4', '2', 'D', '—'][i]}</td>
+          <td class="small">{p.method}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:12px">
+    So 4X42D is a glove with good abrasion resistance (4 of 4), no meaningful Coupe result (X), good tear
+    strength (4 of 4), moderate puncture resistance (2 of 4) and a real cut performance of level D under
+    the TDM test. The sixth position is missing, which means impact protection was not tested or not passed.
+  </p>
+
+  <h2>Conversion table</h2>
+  <p class="section-note">
+    One newton is {N_TO_GF} grams of force, so the EN scale can be expressed in the units US buyers use.
+    This is a comparison of measured force, not a claim that the two tests are interchangeable.
+  </p>
+  <table>
+    <thead>
+      <tr><th>EN 388 cut level</th><th>ISO 13997 load</th><th>Same force in grams</th><th>Overlaps ANSI/ISEA 105</th></tr>
+    </thead>
+    <tbody>
+      {CONVERSION_TABLE.map((r) => (
+        <tr>
+          <td class="num">{r.en}</td>
+          <td>{r.newtons} N</td>
+          <td>{r.grams} g</td>
+          <td>{r.ansi.join(' / ')}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <h2>Why the conversion is approximate</h2>
+  <p>
+    The two tests share a principle: a straight blade is drawn across the sample under a controlled load
+    until it cuts through, and the force required is recorded. What differs is the detail — blade
+    geometry and sharpness state, how the load is applied, and the pass criteria. ISO 13997 and ASTM
+    F2992-15 were developed separately, so their boundary levels do not coincide.
+  </p>
+  <p>
+    The practical consequence: <strong>EN level D overlaps ANSI A4 and the bottom of A5</strong>. If a
+    European supplier quotes "level D" against a US purchase order that says A5, that is a conversation to
+    have before the container ships, not after, and it is settled with the test report rather than with a chart.
+  </p>
+
+  <h2>Common mistakes</h2>
+  <ul>
+    <li><strong>Treating a chart as a certificate.</strong> A chart maps scales; only a test report shows what your glove achieves.</li>
+    <li><strong>Assuming the law sets the level.</strong> It does not — see <a href="/cut-level-checker/">the regulatory framing</a>.</li>
+    <li><strong>Reading the Coupe number.</strong> On modern high-cut liners, the reliable figure is the TDM letter in position five.</li>
+    <li><strong>Confusing puncture with needle resistance.</strong> The EN 388 puncture test uses a blunt probe; hypodermic needles are covered by a different test (ASTM F2878).</li>
+    <li><strong>Using cut level as a proxy for everything else.</strong> Chemicals, heat, cold, vibration and static each have their own standard.</li>
+  </ul>
+
+  <h2>The other standards a glove can carry</h2>
+  <p class="section-note">Cut resistance is one line on the label. These are the ones that most often appear alongside it.</p>
+  <table>
+    <thead>
+      <tr><th>Standard</th><th>What it covers</th></tr>
+    </thead>
+    <tbody>
+      {OTHER_STANDARDS.map((s) => (
+        <tr>
+          <td class="num" style="white-space:normal">{s.code}</td>
+          <td>{s.scope}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <Faq items={faq} />
+</Base>

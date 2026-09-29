@@ -1,0 +1,205 @@
+---
+import { SITE } from '../site.config.mjs';
+import Icon from './Icon.astro';
+import { COUNTRIES, APPLICATIONS, CUT_SCALES } from '../data/glove-model.mjs';
+
+const MODEL = {
+  countries: COUNTRIES.map((c) => ({ id: c.id, label: c.label, scale: c.scale, enforcement: c.enforcement, points: c.points })),
+  apps: APPLICATIONS,
+  scales: { en: { label: CUT_SCALES.en.label, unit: CUT_SCALES.en.unitLabel }, us: { label: CUT_SCALES.us.label, unit: CUT_SCALES.us.unitLabel } },
+};
+---
+<div class="card" id="checker">
+  <h2>Check your requirement</h2>
+  <p class="section-note" style="margin-bottom:20px">
+    Choose the market you are buying for and the job the gloves are for. The result updates as you
+    change either box — there is no button to press.
+  </p>
+  <div class="field-grid">
+    <div class="field">
+      <label for="country">Buying for</label>
+      <div class="control">
+        <Icon name="globe" />
+        <select id="country">
+          {COUNTRIES.map((c) => <option value={c.id}>{c.label}</option>)}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="app">Application</label>
+      <div class="control">
+        <Icon name="tool" />
+        <select id="app">
+          {APPLICATIONS.map((a) => <option value={a.id}>{a.label}</option>)}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="out">
+  <div class="card">
+    <span class="tag" id="out-tag">Application</span>
+    <h2 style="margin-top:0">Cut level usually specified</h2>
+    <div class="levels">
+      <div class="level-badge" id="badge-en">
+        <span class="cap">EN 388:2016 — TDM cut (ISO 13997)</span>
+        <span class="big" id="val-en">—</span>
+        <span class="sub" id="sub-en">Newtons measured on the ISO 13997 straight-blade test</span>
+      </div>
+      <div class="level-badge" id="badge-us">
+        <span class="cap">ANSI/ISEA 105-2016 — cut level</span>
+        <span class="big neutral" id="val-us">—</span>
+        <span class="sub" id="sub-us">Grams of force on the ASTM F2992-15 test</span>
+      </div>
+    </div>
+    <p class="section-note" id="out-hazard" style="margin-top:16px"></p>
+    <p class="section-note" id="out-market"></p>
+    <p class="section-note"><strong>Common industry practice, not a legal requirement.</strong> The level a buyer must
+      actually meet comes from the risk assessment plus the customer contract, insurer and any trade union agreement.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Glove specification to quote</h2>
+    <table class="spec">
+      <tbody>
+        <tr><td>Liner</td><td id="spec-liner">—</td></tr>
+        <tr><td>Coating</td><td id="spec-coating">—</td></tr>
+      </tbody>
+    </table>
+    <h3>Look for</h3>
+    <ul class="chips" id="spec-features"></ul>
+    <h3>Also check</h3>
+    <ul class="notes" id="spec-also"></ul>
+    <div id="spec-watch-wrap">
+      <h3>Where this goes wrong</h3>
+      <ul class="notes" id="spec-watch"></ul>
+    </div>
+  </div>
+
+
+  <div class="card">
+    <h2 style="margin-top:0">Your enquiry sheet</h2>
+    <p>Copy this and send it to a supplier. It states the market, the level and the construction you
+      want, so quotes come back comparable instead of guesswork.</p>
+    <textarea id="sheet" readonly aria-label="Enquiry sheet"></textarea>
+    <button id="copy" type="button" class="secondary" style="margin-top:14px">Copy enquiry sheet</button>
+    <div class="cta" style="margin-bottom:0">
+      <h2 style="margin-top:0">Get a quotation</h2>
+      <p>Send the sheet to <a href={'mailto:' + SITE.email}>{SITE.email}</a> and we will come back with
+        matching glove models, certification and test reports, MOQ, sample lead time and a quotation.</p>
+      <a class="btn-link" id="mailto" href={'mailto:' + SITE.email}>Email this enquiry</a>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ MODEL, EMAIL: SITE.email }}>
+  var $ = function (id) { return document.getElementById(id); };
+
+  function clear(el) { while (el.firstChild) el.removeChild(el.firstChild); }
+
+  function li(text, cls) {
+    var el = document.createElement('li');
+    if (cls) el.className = cls;
+    el.textContent = text;
+    return el;
+  }
+
+  function current() {
+    var appId = $('app').value;
+    var countryId = $('country').value;
+    return {
+      app: MODEL.apps.filter(function (a) { return a.id === appId; })[0],
+      country: MODEL.countries.filter(function (c) { return c.id === countryId; })[0],
+    };
+  }
+
+  function render() {
+    var sel = current();
+    var app = sel.app;
+    var country = sel.country;
+    if (!app || !country) return;
+
+    var enPrimary = country.scale !== 'us';
+    var usPrimary = country.scale !== 'en';
+
+    $('out-tag').textContent = app.label;
+    $('val-en').textContent = enPrimary ? app.en : app.en;
+    $('val-en').className = 'big' + (enPrimary ? '' : ' neutral');
+    $('val-us').textContent = app.ansi;
+    $('val-us').className = 'big' + (usPrimary ? '' : ' neutral');
+    $('badge-en').style.borderColor = enPrimary ? 'rgba(0,113,227,0.5)' : 'var(--line)';
+    $('badge-us').style.borderColor = usPrimary ? 'rgba(0,113,227,0.5)' : 'var(--line)';
+    $('sub-en').textContent = 'Newtons measured on the ISO 13997 straight-blade test. ' +
+      (enPrimary ? 'This is the scale your buyer in this market will read.' : 'Shown for reference.');
+    $('sub-us').textContent = 'Grams of force on the ASTM F2992-15 test. ' +
+      (usPrimary ? 'This is the scale your buyer in this market will read.' : 'Shown for reference.');
+    $('out-hazard').textContent = 'Typical hazards: ' + app.hazard + '.';
+
+    $('spec-liner').textContent = app.liner;
+    $('spec-coating').textContent = app.coating;
+
+    var feat = $('spec-features');
+    clear(feat);
+    app.features.forEach(function (f) { feat.appendChild(li(f)); });
+
+    var also = $('spec-also');
+    clear(also);
+    if (app.also.length) {
+      app.also.forEach(function (f) { also.appendChild(li(f)); });
+    } else {
+      also.appendChild(li('No additional standard usually applies to this task.'));
+    }
+
+    var watch = $('spec-watch');
+    clear(watch);
+    watch.appendChild(li(app.watch, 'warn'));
+
+    $('out-market').textContent = country.scale === 'both'
+      ? 'Exporting to both markets: quote the level in the buyer\u2019s own scale and attach the test report. Full regulatory framing is below.'
+      : 'Enforced by ' + country.enforcement + '. The full regulatory framing is below.';
+
+    var sheet = 'CUT-RESISTANT GLOVE ENQUIRY\n';
+    sheet += '==============================\n';
+    sheet += 'Market          : ' + country.label + '\n';
+    sheet += 'Application     : ' + app.label + '\n';
+    sheet += 'Required level  : EN 388 cut ' + app.en + '  |  ANSI/ISEA 105 ' + app.ansi + '\n';
+    sheet += 'Typical hazards : ' + app.hazard + '\n\n';
+    sheet += 'REQUESTED CONSTRUCTION\n';
+    sheet += '  Liner         : ' + app.liner + '\n';
+    sheet += '  Coating       : ' + app.coating + '\n';
+    sheet += '  Look for      : ' + app.features.join('; ') + '\n';
+    if (app.also.length) sheet += '  Also required : ' + app.also.join('; ') + '\n';
+    sheet += '  Watch out     : ' + app.watch + '\n\n';
+    sheet += 'BUYER DETAILS\n';
+    sheet += '  Company       : \n';
+    sheet += '  Contact       : \n';
+    sheet += '  Quantity      : \n';
+    sheet += '  Delivery port : \n';
+    sheet += '  Target price  : \n';
+    sheet += '\nGenerated with the GloveSpec cut level checker.\n';
+    $('sheet').value = sheet;
+
+    $('mailto').href = 'mailto:' + EMAIL +
+      '?subject=' + encodeURIComponent('Glove enquiry — ' + app.label + ' (' + country.label + ')') +
+      '&body=' + encodeURIComponent(sheet);
+  }
+
+  $('app').addEventListener('change', render);
+  $('country').addEventListener('change', render);
+
+  $('copy').addEventListener('click', function () {
+    var ta = $('sheet');
+    var btn = $('copy');
+    ta.removeAttribute('readonly');
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.setAttribute('readonly', 'readonly');
+    if (!ok && navigator.clipboard) { navigator.clipboard.writeText(ta.value); ok = true; }
+    btn.textContent = ok ? 'Copied to clipboard' : 'Select the text above and copy it manually';
+    setTimeout(function () { btn.textContent = 'Copy enquiry sheet'; }, 2200);
+  });
+
+  render();
+</script>

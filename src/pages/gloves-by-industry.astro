@@ -1,0 +1,148 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Faq from '../components/Faq.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, PAGES } from '../site.config.mjs';
+import { APPLICATIONS, COATING_GUIDE } from '../data/glove-model.mjs';
+
+const meta = PAGES.find((p) => p.path === '/gloves-by-industry/');
+
+const faq = [
+  {
+    q: 'How are these levels chosen?',
+    a: 'They are the bands that industrial buyers and glove suppliers converge on for each task, based on the sharpness, speed and temperature of what is being handled and how long the exposure lasts. They are a starting specification for a risk assessment — not a legal requirement and not a substitute for testing the actual task.',
+  },
+  {
+    q: 'Why does one application get a range, like A4–A6?',
+    a: 'Because the job varies. Handling finished painted panels is not the same as handling raw coil with a burred edge, and a plant in a cold climate is not the same as one running hot material. The bottom of the range is the everyday choice; the top is for the harshest version of the task.',
+  },
+  {
+    q: 'Is the highest level always the safest choice?',
+    a: 'No. High levels need thicker, stiffer liners, and operators who lose feel and grip take gloves off. A plant that issues A6 gloves for an A3 job often ends up with more injuries than one that issues a comfortable A3 glove that workers keep on. Match the level to the hazard.',
+  },
+  {
+    q: 'What about chemicals, heat and vibration?',
+    a: 'Each is a separate standard and a separate test: EN 374 for chemicals, EN 407 for heat, EN 511 for cold, EN ISO 10819 for vibration and EN 16350 for antistatic. A glove can be excellent for cut and useless for the chemical sitting on the bench next to it.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Cut-resistant gloves by industry: levels, liners and coatings',
+    description: meta.description,
+    inLanguage: 'en',
+    mainEntityOfPage: new URL(meta.path, SITE.url).href,
+    author: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+];
+
+import QuickAnswer from '../components/QuickAnswer.astro';
+
+---
+<Base title={meta.title} description={meta.description} path={meta.path} jsonLd={jsonLd}>
+  <Breadcrumbs items={[{ name: 'Gloves by industry', path: meta.path }]} />
+
+  <h1>Cut-resistant gloves by industry and task</h1>
+  <p class="lede">
+    Twelve of the applications that generate most industrial glove enquiries, with the cut level normally
+    specified, the construction that delivers it, and the mistake that turns a correct specification into
+    an injury report.
+  </p>
+
+  <QuickAnswer
+    updated={SITE.updated}
+    points={[
+      'Twelve applications, each with the cut level normally specified, the liner that delivers it and the mistake that turns a correct specification into an injury report.',
+      'These levels are common practice for industrial buyers, not legal minimums.',
+      'The liner sets the cut level; the coating sets the grip. Choosing a coating does not change cut performance.',
+    ]}
+  />
+
+
+  <table>
+    <thead>
+      <tr><th>Application</th><th>EN 388 cut</th><th>ANSI/ISEA 105</th></tr>
+    </thead>
+    <tbody>
+      {APPLICATIONS.map((a) => (
+        <tr>
+          <td><a href={'#' + a.id}>{a.label}</a></td>
+          <td class="num">{a.en}</td>
+          <td>{a.ansi}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:12px">
+    Not sure which one is yours? The <a href="/cut-level-checker/">cut level checker</a> walks through the
+    same data and produces an enquiry sheet you can send to suppliers.
+  </p>
+
+  {APPLICATIONS.map((a) => (
+    <div class="app-block" id={a.id}>
+      <h3><Icon name={a.icon} />{a.label}</h3>
+      <p style="color:var(--text-2)">{a.hazard}.</p>
+      <div class="levels">
+        <div class="level-badge">
+          <span class="cap">EN 388 cut</span>
+          <span class="big">{a.en}</span>
+        </div>
+        <div class="level-badge">
+          <span class="cap">ANSI/ISEA 105</span>
+          <span class="big neutral">{a.ansi}</span>
+        </div>
+      </div>
+      <table class="spec" style="margin-top:18px">
+        <tbody>
+          <tr><td>Liner</td><td>{a.liner}</td></tr>
+          <tr><td>Coating</td><td>{a.coating}</td></tr>
+        </tbody>
+      </table>
+      <h3>Look for</h3>
+      <ul class="chips">{a.features.map((f) => <li>{f}</li>)}</ul>
+      {a.also.length > 0 && (
+        <>
+          <h3>Also check</h3>
+          <ul class="notes">{a.also.map((f) => <li>{f}</li>)}</ul>
+        </>
+      )}
+      <h3>Where this goes wrong</h3>
+      <ul class="notes"><li class="warn">{a.watch}</li></ul>
+    </div>
+  ))}
+
+  <h2>Choosing the coating</h2>
+  <p class="section-note">
+    The liner decides the cut level. The coating decides whether anyone keeps the glove on.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Coating</th><th>Best for</th><th>Note</th></tr>
+    </thead>
+    <tbody>
+      {COATING_GUIDE.map((c) => (
+        <tr>
+          <td class="num" style="white-space:normal">{c.name}</td>
+          <td>{c.best}</td>
+          <td class="small">{c.note}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <div class="cta">
+    <h2>Quoting a glove programme?</h2>
+    <p>
+      Run the <a href="/cut-level-checker/">cut level checker</a> for your application, copy the enquiry
+      sheet, and send it to <a href={'mailto:' + SITE.email}>{SITE.email}</a>. Every supplier then quotes
+      against the same specification.
+    </p>
+    <a class="btn-link" href="/request-quote/">Request a quote</a>
+  </div>
+
+  <Faq items={faq} />
+</Base>

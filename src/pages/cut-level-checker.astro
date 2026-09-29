@@ -1,0 +1,125 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Checker from '../components/Checker.astro';
+import Faq from '../components/Faq.astro';
+import { SITE, PAGES } from '../site.config.mjs';
+import { APPLICATIONS, COUNTRIES, CONVERSION_TABLE } from '../data/glove-model.mjs';
+
+const meta = PAGES.find((p) => p.path === '/cut-level-checker/');
+
+const faq = [
+  {
+    q: 'How do I use the checker?',
+    a: 'Choose the market you are buying for and the application the gloves are for. The level, the glove specification and the enquiry sheet update immediately. The result is a starting specification to confirm with your own risk assessment.',
+  },
+  {
+    q: 'Why are two levels shown for every application?',
+    a: 'Because a range is honest. The exact level depends on the material thickness, the sharpness and temperature of the parts, the exposure time and the plant\'s own standard. We give the band that industrial buyers normally work in, in both the EN 388 and the ANSI/ISEA 105 scales, so you can quote in whichever scale your buyer reads.',
+  },
+  {
+    q: 'The checker says a range, but my customer insists on one level.',
+    a: 'Then the customer contract sets it, and the practical move is to quote that level and attach the test report. If the contract requires a level above what the hazard justifies, it is worth raising with the customer, because over-specified gloves get taken off in hot plants.',
+  },
+  {
+    q: 'Can I use this to write a purchase order?',
+    a: 'Yes, as a starting specification. State the scale your buyer uses (A-levels for the US, EN letter for the EU), require the test report to EN 388:2016+A1:2018 or ASTM F2992-15 as an attachment, and confirm the other hazards in the task — chemicals, heat, vibration and static are separate standards.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'GloveSpec cut level checker',
+    url: new URL(meta.path, SITE.url).href,
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    description: meta.description,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    publisher: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+  },
+];
+
+import QuickAnswer from '../components/QuickAnswer.astro';
+
+---
+<Base title={meta.title} description={meta.description} path={meta.path} jsonLd={jsonLd}>
+  <Breadcrumbs items={[{ name: 'Cut level checker', path: meta.path }]} />
+
+  <h1>Cut level checker: what level do you need?</h1>
+  <p class="lede">
+    Two questions — which market, and which job — decide the cut level for most industrial glove
+    enquiries. Choose them below and the specification, the reasoning and a ready enquiry sheet follow.
+  </p>
+
+  <QuickAnswer
+    updated={SITE.updated}
+    points={[
+      'Two inputs decide the cut level in most industrial glove enquiries: the market (EN 388 or ANSI/ISEA 105) and the application.',
+      'EN 388 cut levels run <b>A (2&ndash;5&nbsp;N)</b> to <b>F (30&nbsp;N and above)</b>; ANSI/ISEA 105 runs <b>A1 (200&ndash;500&nbsp;g)</b> to <b>A9 (6000&nbsp;g and above)</b>.',
+      'The levels shown are common industry practice, not legal requirements: the number comes from the risk assessment, the customer contract or the insurer.',
+    ]}
+  />
+
+
+  <Checker />
+
+  <h2>Reading the two scales</h2>
+  <p class="section-note">
+    EN 388 reports cut in newtons on the ISO 13997 test; ANSI/ISEA 105 reports it in grams of force on
+    ASTM F2992-15. Same principle, different edge and load — so the scales overlap instead of matching.
+  </p>
+  <table>
+    <thead>
+      <tr><th>EN 388 cut</th><th>Force (newtons)</th><th>Equivalent force (grams)</th><th>Overlaps ANSI/ISEA 105</th></tr>
+    </thead>
+    <tbody>
+      {CONVERSION_TABLE.map((r) => (
+        <tr>
+          <td class="num">{r.en}</td>
+          <td>{r.newtons} N</td>
+          <td>{r.grams} g</td>
+          <td>{r.ansi.join(' / ')}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <h2>Every application, and the level usually specified</h2>
+  <table>
+    <thead>
+      <tr><th>Application</th><th>Typical hazards</th><th>EN 388</th><th>ANSI/ISEA 105</th></tr>
+    </thead>
+    <tbody>
+      {APPLICATIONS.map((a) => (
+        <tr>
+          <td><a href="/gloves-by-industry/">{a.label}</a></td>
+          <td class="small">{a.hazard}</td>
+          <td class="num">{a.en}</td>
+          <td>{a.ansi}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+
+  <h2>What the regulation actually says</h2>
+  <p class="section-note">
+    Worth reading before you accept anyone's claim about what is "legally required" — including ours.
+  </p>
+  {COUNTRIES.map((c) => (
+    <div class="app-block">
+      <span class="tag">{c.label}</span>
+      <p class="small" style="margin-bottom:14px">Enforced by: {c.enforcement}</p>
+      {c.points.map((pt) => (
+        <>
+          <h3>{pt.title}</h3>
+          <p style="color:var(--text-2)">{pt.text}</p>
+        </>
+      ))}
+    </div>
+  ))}
+
+  <Faq items={faq} />
+</Base>

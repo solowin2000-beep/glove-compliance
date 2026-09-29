@@ -1,0 +1,160 @@
+---
+import Base from '../layouts/Base.astro';
+import Faq from '../components/Faq.astro';
+import Icon from '../components/Icon.astro';
+import { SITE, PAGES } from '../site.config.mjs';
+import { APPLICATIONS, CONVERSION_TABLE } from '../data/glove-model.mjs';
+
+const meta = PAGES.find((p) => p.path === '/');
+const preview = APPLICATIONS.slice(0, 6);
+
+const faq = [
+  {
+    q: 'What cut level gloves do I need?',
+    a: 'It depends on the task, not on a regulation. The starting point for most industrial work is ANSI/ISEA 105 A4-A5 in the United States (EN 388 cut level D-E in Europe). Sheet metal, glass handling, rebar and waste sorting sit at the high end; warehouse picking sits at A2-A3. Use the checker to see the level usually specified for your application, then confirm it with a risk assessment.',
+  },
+  {
+    q: 'Does OSHA require a specific cut level?',
+    a: 'No. OSHA 29 CFR 1910.138 requires employers to select hand protection appropriate for the work and the hazards identified, but it does not name a cut level. The numbers buyers actually have to meet come from their own risk assessment, customer contracts, insurers and any applicable trade union agreement.',
+  },
+  {
+    q: 'Is EN 388 level D the same as ANSI A4?',
+    a: 'Not exactly. Both cut tests use the same TDM principle, but different edge geometry and load conditions, so the scales overlap rather than match. EN level D covers 15-22 newtons — roughly 1,530-2,240 grams — which lands in ANSI A4, with the top of the band brushing the bottom of A5. Treat any letter-to-letter chart, including ours, as approximate.',
+  },
+  {
+    q: 'What does a marking like 4X42D mean?',
+    a: 'It is the EN 388 six-position marking: abrasion 4, blade cut X (not rated), tear 4, puncture 2, TDM cut D, and no impact marking. The X in the second position is normal on high-performance liners, because the rotary blade blunts on hard fibres and the test stops being meaningful. The TDM letter is the number that predicts real cut performance.',
+  },
+  {
+    q: 'Is a higher cut level always better?',
+    a: 'No. Higher cut levels usually mean a thicker, stiffer liner, and operators who lose feel and grip take the gloves off — which produces more injuries than a lower-rated glove that is actually worn. Match the level to the hazard and keep the dexterity the job needs.',
+  },
+  {
+    q: 'Are cut-resistant gloves cut-proof?',
+    a: 'No. They delay and reduce injury; nothing resists a saw chain or a deliberate blade. The EN 388 puncture test also uses a blunt probe, so it says nothing about hypodermic needles — that is a separate test (ASTM F2878).',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    url: SITE.url,
+    description: meta.description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+    email: SITE.email,
+  },
+];
+
+import QuickAnswer from '../components/QuickAnswer.astro';
+
+---
+<Base title={meta.title} description={meta.description} path={meta.path} jsonLd={jsonLd}>
+  <section class="hero">
+    <h1>What cut level gloves do you need?</h1>
+    <p class="lede">
+      The law does not set the number. Your risk assessment, your customer contract and your insurer do.
+      This checker tells you what level buyers normally specify for a given job, in both the EN 388 and
+      the ANSI/ISEA 105 scales — and what to put in the purchase order.
+    </p>
+
+  <QuickAnswer
+    updated={SITE.updated}
+    points={[
+      'No regulation sets a required cut level: OSHA 29 CFR 1910.138 requires hand protection chosen after a hazard assessment, and EU Regulation 2016/425 requires type examination and CE marking.',
+      'EN 388 reports cut in newtons (A&ndash;F, from 2&nbsp;N); ANSI/ISEA 105 reports it in grams of force (A1&ndash;A9, from 200&nbsp;g).',
+      'Approximate mapping: EN 388 A to ANSI A1, B to A2, C to A3, D to A4, E to A5, F to A6 and above &mdash; the boundaries do not line up.',
+    ]}
+  />
+
+    <p style="margin-bottom:40px"><a class="btn-link" href="/cut-level-checker/">Open the cut level checker</a></p>
+  </section>
+
+  <div class="tools">
+    <a class="tool" href="/cut-level-checker/">
+      <h3>Cut level checker</h3>
+      <p>Pick a market and an application. Get the level usually specified, the glove spec, and a ready enquiry sheet.</p>
+    </a>
+    <a class="tool" href="/cut-level-chart/">
+      <h3>EN 388 vs ANSI chart</h3>
+      <p>Convert EN 388 cut letters A–F to ANSI/ISEA 105 A1–A9, and decode a marking like 4X42D.</p>
+    </a>
+    <a class="tool" href="/gloves-by-industry/">
+      <h3>Gloves by industry</h3>
+      <p>Twelve applications with liner, coating, features and the mistake to avoid in each one.</p>
+    </a>
+  </div>
+
+  <h2>The number nobody legislated</h2>
+  <p>
+    Ask a plant buyer what cut level they need and you will usually hear "A4" or "A5". Ask where that
+    came from and the answer is rarely a regulation. OSHA 29 CFR 1910.138 and Regulation (EU) 2016/425
+    both stop short of naming a level: one requires protection appropriate to the hazard, the other
+    requires certification and CE marking.
+  </p>
+  <p>
+    The number arrives from somewhere else — a customer's purchase order, an insurer's condition, a
+    trade union agreement, or a group EHS standard written after an injury. That is why two identical
+    factories in the same country can specify different levels, and why "what does the law require"
+    is the wrong question to bring to a supplier.
+  </p>
+
+  <h2>Typical levels, by application</h2>
+  <p class="section-note">Common practice for industrial buyers — a starting point for your own risk assessment.</p>
+  <table>
+    <thead>
+      <tr><th>Application</th><th>EN 388 cut</th><th>ANSI/ISEA 105</th></tr>
+    </thead>
+    <tbody>
+      {preview.map((a) => (
+        <tr>
+          <td><a href="/gloves-by-industry/">{a.label}</a></td>
+          <td class="num">{a.en}</td>
+          <td>{a.ansi}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:12px">
+    See all twelve applications, with specifications, on the <a href="/gloves-by-industry/">industry page</a>.
+  </p>
+
+  <h2>How the two scales line up</h2>
+  <p class="section-note">
+    Both cut tests measure force on a straight blade (TDM), which is why the scales can be compared at all.
+  </p>
+  <table>
+    <thead>
+      <tr><th>EN 388 cut</th><th>Force (newtons)</th><th>Equivalent force (grams)</th><th>Overlaps ANSI/ISEA 105</th></tr>
+    </thead>
+    <tbody>
+      {CONVERSION_TABLE.map((r) => (
+        <tr>
+          <td class="num">{r.en}</td>
+          <td>{r.newtons} N</td>
+          <td>{r.grams} g</td>
+          <td>{r.ansi.join(' / ')}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:12px">
+    Full explanation, including how to read a marking like 4X42D, on the
+    <a href="/cut-level-chart/">EN 388 vs ANSI chart</a>.
+  </p>
+
+  <h2>How to use this site</h2>
+  <ol>
+    <li>Run the <a href="/cut-level-checker/">checker</a> for your market and application.</li>
+    <li>Confirm the level against your own risk assessment and any contract requirement you already have.</li>
+    <li>Copy the enquiry sheet into an email, so every supplier quotes against the same specification.</li>
+  </ol>
+
+  <Faq items={faq} />
+</Base>

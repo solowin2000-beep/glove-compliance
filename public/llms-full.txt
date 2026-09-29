@@ -1,0 +1,43 @@
+# GloveSpec — full reference
+
+Source: https://glove-compliance.pages.dev — Last updated 2026-09-29.
+
+## The two scales
+EN 388:2016+A1:2018, cut by TDM (ISO 13997), reported in newtons:
+A 2-5, B 5-10, C 10-15, D 15-22, E 22-30, F 30 and above.
+
+ANSI/ISEA 105-2016, cut by ASTM F2992-15, reported in grams of force:
+A1 200-500, A2 500-1000, A3 1000-1500, A4 1500-2200, A5 2200-3000, A6 3000-4000,
+A7 4000-5000, A8 5000-6000, A9 6000 and above.
+
+1 newton = 101.97 gram-force. Approximate mapping: A-A1, B-A2, C-A3, D-A4, E-A5, F-A6 and above.
+
+## Reading a marking
+An EN 388 marking shows performance in order: abrasion (1-4), cut by Coupe test (1-5 or X),
+tear (1-4), puncture (1-4), then the TDM cut letter (A-F) and optionally P for impact protection.
+"4X42D" is abrasion 4, cut X, tear 4, puncture 2, TDM cut D. The X is not a failure: it means the
+Coupe test was unreliable on that liner and the TDM result is the one to use.
+
+## Why the conversion is approximate
+Both tests load a straight blade, but ISO 13997 and ASTM F2992-15 differ in edge geometry, load
+application and pass criteria, and the level boundaries are rounded. A chart that gives one exact
+mapping is oversimplifying.
+
+## Who sets the number
+Nobody legislates it. OSHA 29 CFR 1910.138 requires employers to select hand protection after a
+hazard assessment, without naming a level. EU Regulation 2016/425 requires type examination and CE
+marking. In practice the number comes from the risk assessment, the customer contract, the insurer
+or a company EHS standard.
+
+## Questions people ask
+Q: Is there an exact EN 388 to ANSI conversion?
+A: No. The scales can be compared because both use a straight blade under load, but the boundaries do not line up.
+
+Q: Why does my glove show an X instead of a cut number?
+A: The Coupe test is unreliable on glass fibre, HPPE and steel blends because the blade blunts; from EN 388:2016 the marking shows X and reports the TDM result instead.
+
+Q: Which number goes on a purchase order?
+A: The one your buyer reads — ANSI A-levels in the US, EN 388 cut letters in Europe — with the standard version stated and the test report attached.
+
+## Attribution
+GloveSpec, https://glove-compliance.pages.dev. Free to cite with a link to the page used.

@@ -1,0 +1,20 @@
+---
+import { SITE, PAGES } from '../site.config.mjs';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      {PAGES.map((p) => <a href={p.path}>{p.nav}</a>)}
+    </nav>
+    <p>{SITE.name} — {SITE.tagline}. Enquiries: <a href={'mailto:' + SITE.email}>{SITE.email}</a></p>
+    <p class="disclaimer">
+      The cut levels shown on this site are common industry practice for each application, not a legal
+      requirement. Neither OSHA 29 CFR 1910.138 nor Regulation (EU) 2016/425 prescribes a numeric cut
+      level: the employer's risk assessment, customer contract, insurer and applicable trade union
+      agreement set the level you must buy. Always confirm the final specification, test reports and
+      certification with your supplier and your EHS team before ordering.
+      © {year} {SITE.name}.
+    </p>
+  </div>
+</footer>

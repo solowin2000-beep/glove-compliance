@@ -1,0 +1,348 @@
+---
+import { SITE } from '../site.config.mjs';
+import Icon from './Icon.astro';
+import { ICONS } from '../data/icons.mjs';
+import {
+  PARTS,
+  GARMENT_OPTIONS,
+  THICKNESS_OPTIONS,
+  EASE_BY_THICKNESS,
+  PART_OFFSET,
+  LENGTH_EASE,
+  TENSION_OFFSET,
+} from '../data/fit-model.mjs';
+
+const MODEL = {
+  parts: PARTS,
+  garments: GARMENT_OPTIONS,
+  thicknessOptions: THICKNESS_OPTIONS,
+  ease: EASE_BY_THICKNESS,
+  offset: PART_OFFSET,
+  lengthEase: LENGTH_EASE,
+  tension: TENSION_OFFSET,
+};
+---
+<div class="card" id="calculator">
+  <h2>Your measurements</h2>
+  <div class="field-grid">
+    <div class="field">
+      <label for="garment">Garment</label>
+      <div class="control">
+        <Icon name={GARMENT_OPTIONS[0].icon} />
+        <select id="garment">
+          {GARMENT_OPTIONS.map((g) => <option value={g.value} data-icon={g.icon}>{g.label}</option>)}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="thickness">Latex thickness</label>
+      <div class="control">
+        <Icon name="layers" />
+        <select id="thickness">
+          {THICKNESS_OPTIONS.map((t, i) => <option value={t.value} data-icon={t.icon} selected={i === 1}>{t.label}</option>)}
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="fit">Desired fit</label>
+      <div class="control">
+        <Icon name="snug" />
+        <select id="fit">
+          <option value="relaxed">Comfortable / easier to wear</option>
+          <option value="standard" selected>Standard skin-tight</option>
+          <option value="snug">Extra tight / compression</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="exp">Your experience</label>
+      <div class="control">
+        <Icon name="star" />
+        <select id="exp">
+          <option value="first" selected>First latex garment</option>
+          <option value="some">I already own latex</option>
+          <option value="pro">Experienced wearer</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label for="who">Who measures you</label>
+      <div class="control">
+        <Icon name="ruler" />
+        <select id="who">
+          <option value="self" selected>Me, with a tape</option>
+          <option value="other">Another person</option>
+          <option value="pro">Tailor / professional</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="field-head">
+    <h3>Body measurements</h3>
+    <div class="segmented" role="group" aria-label="Measurement units">
+      <button type="button" class="seg is-active" data-unit="cm">cm</button>
+      <button type="button" class="seg" data-unit="in">inches</button>
+    </div>
+  </div>
+
+  <div class="field-grid">
+    {PARTS.map((p) => (
+      <div class="field">
+        <label for={p.id}>{p.label}</label>
+        <div class="control">
+          <Icon name={p.icon} />
+          <input id={p.id} type="number" step="0.5" min="0" inputmode="decimal" placeholder="cm" class="unit-input" />
+        </div>
+        <div class="hint">{p.note}</div>
+      </div>
+    ))}
+  </div>
+
+  <button id="calc" type="button" style="margin-top:24px">Calculate finished garment sizes</button>
+</div>
+
+<div id="out" class="hidden">
+  <div class="card">
+    <h2>Suggested finished garment sizes</h2>
+    <table id="sizes">
+      <thead>
+        <tr><th>Part</th><th>Your body</th><th>Suggested finished</th><th>Reduction</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="small" style="margin-top:14px">
+      The finished garment is <strong>smaller</strong> than your body on purpose. Latex only looks
+      skin-tight because it is stretched over you; a garment cut to your exact body measurements
+      would wrinkle, slip and look loose.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Checks and notes</h2>
+    <ul class="notes" id="notes"></ul>
+  </div>
+
+  <div class="card">
+    <h2>Your measurement sheet</h2>
+    <p>Copy this sheet and send it to your maker. It lists both your body measurements and the finished sizes they should cut, so nothing gets misread.</p>
+    <textarea id="sheet" readonly aria-label="Measurement sheet"></textarea>
+    <button id="copy" type="button" class="secondary" style="margin-top:14px">Copy measurement sheet</button>
+    <p class="small" style="margin-top:14px">
+      Ordering from us? Email the sheet to <a href={'mailto:' + SITE.email}>{SITE.email}</a> and we
+      will quote a made-to-measure garment from your numbers.
+    </p>
+  </div>
+</div>
+
+<script define:vars={{ MODEL, ICONS }}>
+  var SVG_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">';
+  var unit = 'cm';
+
+  function r1(n) { return Math.round(n * 10) / 10; }
+  function r0(n) { return Math.round(n); }
+  function toIn(cm) { return r1(cm / 2.54); }
+  function toCm(v) { return unit === 'cm' ? v : r1(v * 2.54); }
+
+  function syncIcon(sel) {
+    var wrap = sel.closest('.control');
+    if (!wrap) return;
+    var ico = wrap.querySelector('.ico');
+    if (!ico) return;
+    var opt = sel.options[sel.selectedIndex];
+    var name = (opt && opt.getAttribute('data-icon')) || ico.getAttribute('data-icon');
+    if (name && ICONS[name]) {
+      ico.setAttribute('data-icon', name);
+      ico.innerHTML = SVG_OPEN + ICONS[name] + '</svg>';
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('select'), function (sel) {
+    syncIcon(sel);
+    sel.addEventListener('change', function () { syncIcon(sel); });
+  });
+
+  /* ---------- 单位切换 ---------- */
+  function applyUnit(next) {
+    if (next === unit) return;
+    var inputs = document.querySelectorAll('.unit-input');
+    Array.prototype.forEach.call(inputs, function (el) {
+      var v = parseFloat(el.value);
+      if (isFinite(v) && v > 0) el.value = next === 'in' ? toIn(v) : toCm(v);
+      el.placeholder = next;
+      el.step = next === 'in' ? '0.25' : '0.5';
+    });
+    unit = next;
+    Array.prototype.forEach.call(document.querySelectorAll('.seg'), function (b) {
+      b.classList.toggle('is-active', b.getAttribute('data-unit') === next);
+    });
+    if (!document.getElementById('out').classList.contains('hidden')) calculate();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.seg'), function (b) {
+    b.addEventListener('click', function () { applyUnit(b.getAttribute('data-unit')); });
+  });
+
+  /* ---------- 计算 ---------- */
+  function val(id) {
+    var el = document.getElementById(id);
+    var v = el ? parseFloat(el.value) : NaN;
+    if (!isFinite(v) || v <= 0) return null;
+    return toCm(v);
+  }
+
+  function easeRange(part, thickness, tension) {
+    var t = MODEL.tension[tension] || 0;
+    var lo, hi;
+    if (part.length) {
+      lo = MODEL.lengthEase[0];
+      hi = MODEL.lengthEase[1];
+    } else {
+      var e = MODEL.ease[thickness];
+      var off = MODEL.offset[part.id] || 0;
+      lo = e[0] + off;
+      hi = e[1] + off;
+    }
+    return [lo + t, hi + t];
+  }
+
+  function finished(part, bodyCm, thickness, tension) {
+    var r = easeRange(part, thickness, tension);
+    return {
+      lo: r[0],
+      hi: r[1],
+      smallest: r1(bodyCm * (1 - r[1] / 100)),
+      largest: r1(bodyCm * (1 - r[0] / 100)),
+    };
+  }
+
+  function rangeText(a, b) {
+    return unit === 'cm'
+      ? r1(a) + ' – ' + r1(b) + ' cm'
+      : toIn(a) + ' – ' + toIn(b) + ' in';
+  }
+
+  function secondText(a, b) {
+    return unit === 'cm' ? toIn(a) + ' – ' + toIn(b) + ' in' : r1(a) + ' – ' + r1(b) + ' cm';
+  }
+
+  function valueText(cm) { return unit === 'cm' ? r1(cm) + ' cm' : toIn(cm) + ' in'; }
+  function secondValueText(cm) { return unit === 'cm' ? toIn(cm) + ' in' : r1(cm) + ' cm'; }
+
+  function pad(s) { while (s.length < 15) s += ' '; return s; }
+
+  function calculate() {
+    var thickness = document.getElementById('thickness').value;
+    var tension = document.getElementById('fit').value;
+    var exp = document.getElementById('exp').value;
+    var who = document.getElementById('who').value;
+    var garment = document.getElementById('garment').selectedOptions[0].text;
+    var matLabel = document.getElementById('thickness').selectedOptions[0].text;
+
+    var rows = [];
+    MODEL.parts.forEach(function (p) {
+      var body = val(p.id);
+      if (!body) return;
+      var f = finished(p, body, thickness, tension);
+      var pick = (f.smallest + f.largest) / 2;
+      if (exp === 'first') pick = f.largest;
+      if (exp === 'pro') pick = f.smallest;
+      rows.push({ p: p, body: body, f: f, pick: r1(pick) });
+    });
+
+    if (!rows.length) {
+      alert('Please enter at least one measurement.');
+      return;
+    }
+
+    var tbody = document.querySelector('#sizes tbody');
+    tbody.innerHTML = '';
+    rows.forEach(function (r) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + r.p.label + '</td>' +
+        '<td>' + valueText(r.body) + '<span class="small block">' + secondValueText(r.body) + '</span></td>' +
+        '<td class="num">' + rangeText(r.f.smallest, r.f.largest) + '<span class="small block">' + secondText(r.f.smallest, r.f.largest) + '</span></td>' +
+        '<td class="small">-' + r0(r.f.lo) + '% to -' + r0(r.f.hi) + '%</td>';
+      tbody.appendChild(tr);
+    });
+
+    var notes = [];
+    var push = function (text, cls) { notes.push({ text: text, cls: cls || '' }); };
+
+    var tightest = rows.slice().sort(function (a, b) { return b.f.hi - a.f.hi; })[0];
+    if (tightest.f.hi >= 17) {
+      push('Your ' + tightest.p.label.toLowerCase() + ' needs about -' + r0(tightest.f.hi) +
+        '%. That is at the limit of what can be pulled on: expect a tight fight and a higher risk of seam tears.', 'warn');
+    }
+    if (parseFloat(thickness) >= 0.6 && garment.indexOf('neck entry') > -1) {
+      push(thickness + ' mm with a neck entry is very hard to put on. A back or front zipper is strongly recommended at this thickness.', 'warn');
+    }
+    if (exp === 'first' && parseFloat(thickness) >= 0.6) {
+      push('For a first garment, 0.40 mm is the usual starting point. Thicker sheeting is less forgiving to wear.', 'warn');
+    }
+    if (who === 'self') {
+      push('Self-measurements are usually accurate to about 1–2 cm. Double-check your thigh, torso length and upper arm — those are the three parts customers most often get wrong.', 'warn');
+    }
+
+    var waist = val('waist'), hip = val('hip'), chest = val('chest');
+    if (waist && hip && waist > hip) push('Your waist measures larger than your hip. Please re-measure both before ordering.', 'bad');
+    if (waist && chest && waist > chest) push('Your waist measures larger than your chest. Please re-measure both before ordering.', 'bad');
+
+    push('Choosing between two standard sizes? Take the smaller one. Latex is meant to be stretched; the larger size will wrinkle and slip.');
+    push('Your finished garment will measure about ' + r0(rows[0].f.lo) + '–' + r0(rows[0].f.hi) +
+      '% smaller than your body at ' + thickness + ' mm. That is the design value, not a mistake.');
+
+    var ul = document.getElementById('notes');
+    ul.innerHTML = '';
+    notes.forEach(function (n) {
+      var li = document.createElement('li');
+      if (n.cls) li.className = n.cls;
+      li.innerHTML = n.text;
+      ul.appendChild(li);
+    });
+
+    var sheet = 'LATEX MEASUREMENT SHEET\n';
+    sheet += '==============================\n';
+    sheet += 'Garment     : ' + garment + '\n';
+    sheet += 'Material    : ' + matLabel + '\n';
+    sheet += 'Desired fit : ' + document.getElementById('fit').selectedOptions[0].text + '\n';
+    sheet += 'Measured by : ' + document.getElementById('who').selectedOptions[0].text + '\n\n';
+    sheet += 'BODY MEASUREMENTS\n';
+    rows.forEach(function (r) {
+      sheet += '  ' + pad(r.p.label) + ': ' + r1(r.body) + ' cm  (' + toIn(r.body) + ' in)\n';
+    });
+    sheet += '\nFINISHED GARMENT SIZES TO CUT\n';
+    rows.forEach(function (r) {
+      sheet += '  ' + pad(r.p.label) + ': ' + r.f.smallest + ' - ' + r.f.largest + ' cm  (' +
+        toIn(r.f.smallest) + ' - ' + toIn(r.f.largest) + ' in)   recommended ' + r.pick + ' cm\n';
+    });
+    sheet += '\nReduction at ' + thickness + ' mm: -' + r0(rows[0].f.lo) + '% to -' + r0(rows[0].f.hi) + '%\n';
+    sheet += 'Generated with the Latex Fit & Measurement Assistant.\n';
+    document.getElementById('sheet').value = sheet;
+
+    document.getElementById('out').classList.remove('hidden');
+  }
+
+  document.getElementById('calc').addEventListener('click', function () {
+    var wasHidden = document.getElementById('out').classList.contains('hidden');
+    calculate();
+    if (wasHidden) document.getElementById('out').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('copy').addEventListener('click', function () {
+    var ta = document.getElementById('sheet');
+    var btn = document.getElementById('copy');
+    ta.removeAttribute('readonly');
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.setAttribute('readonly', 'readonly');
+    if (!ok && navigator.clipboard) {
+      navigator.clipboard.writeText(ta.value);
+      ok = true;
+    }
+    btn.textContent = ok ? 'Copied to clipboard' : 'Select the text above and copy it manually';
+    setTimeout(function () { btn.textContent = 'Copy measurement sheet'; }, 2200);
+  });
+</script>
