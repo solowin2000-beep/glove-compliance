@@ -47,8 +47,10 @@ npm run build   # static output in dist/
 ```
 
 ## Deploy
-Upload the contents of `dist/` to Cloudflare Pages, or connect this repository with build command
-`npm run build` and output directory `dist`.
+This repository is connected to the Cloudflare Pages project `glove-compliance` at
+https://glove-compliance.pages.dev/. Pushing to `main` builds and deploys automatically
+(build command `npm run build`, output directory `dist`).
+The contents of `dist/` can also be uploaded by hand if needed.
 
 ## Standards referenced
 EN 388:2016+A1:2018 · ANSI/ISEA 105-2016 · ASTM F2992-15 · ISO 13997 · OSHA 29 CFR 1910.138 ·
