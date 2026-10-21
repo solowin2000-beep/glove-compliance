@@ -1,6 +1,6 @@
 # GloveSpec — full reference
 
-Source: https://glove-compliance.pages.dev — Last updated 2026-09-29.
+Source: https://gloves.latexpapa.com — Last updated 2026-09-29.
 
 ## The two scales
 EN 388:2016+A1:2018, cut by TDM (ISO 13997), reported in newtons:
@@ -40,4 +40,4 @@ Q: Which number goes on a purchase order?
 A: The one your buyer reads — ANSI A-levels in the US, EN 388 cut letters in Europe — with the standard version stated and the test report attached.
 
 ## Attribution
-GloveSpec, https://glove-compliance.pages.dev. Free to cite with a link to the page used.
+GloveSpec, https://gloves.latexpapa.com. Free to cite with a link to the page used.

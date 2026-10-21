@@ -5,7 +5,7 @@
  */
 
 export const SITE = {
-  url: 'https://glove-compliance.pages.dev',
+  url: 'https://gloves.latexpapa.com',
   name: 'GloveSpec',
   tagline: 'Cut-level compliance for industrial glove buyers',
 
